@@ -1,0 +1,7 @@
+aiogram
+httpx
+python-dotenv
+fastapi
+uvicorn
+redis
+pydantic
