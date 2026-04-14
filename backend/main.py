@@ -5,8 +5,6 @@ from app.dependencies import redis_client
 from app.schemas import (
     AdminActivateRequest,
     AdminActivateResponse,
-    ActorRequest,
-    DeleteProfileRequest,
     ExistsResponse,
     MessageResponse,
     ProfileCreate,
@@ -212,9 +210,9 @@ async def admin_patch_user(
 @app.delete("/admin/users/{telegram_user_id}", response_model=MessageResponse)
 async def admin_delete_user(
     telegram_user_id: int,
-    payload: ActorRequest,
+    actor_telegram_user_id: int = Query(...),
 ):
-    if not is_admin(payload.actor_telegram_user_id):
+    if not is_admin(actor_telegram_user_id):
         raise HTTPException(status_code=403, detail="Admin access required.")
 
     deleted = delete_user_profile(telegram_user_id)
@@ -225,13 +223,12 @@ async def admin_delete_user(
 
 
 @app.delete("/admin/redis/flush", response_model=MessageResponse)
-async def admin_flush_redis(payload: ActorRequest):
-    if not is_admin(payload.actor_telegram_user_id):
+async def admin_flush_redis(actor_telegram_user_id: int = Query(...)):
+    if not is_admin(actor_telegram_user_id):
         raise HTTPException(status_code=403, detail="Admin access required.")
 
     flush_all_project_data()
     return MessageResponse(message="All project data has been deleted from Redis.")
-
 
 @app.get("/artists/tags", response_model=TagListResponse)
 async def get_artist_tags():
